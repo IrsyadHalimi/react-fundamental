@@ -2,21 +2,31 @@ import { useEffect, useState } from "react";
 import TaskForm from "./components/task/TaskForm";
 import TaskList from "./components/TaskList";
 import { Task } from "./types/task";
+import { fetchTasks } from "./services/taskService";
 
 const App = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showCompleted, setShowCompleted] = useState<boolean>(true)
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
 
-  useEffect(() => {
-    const savedTasks = localStorage.getItem('tasks');
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
+  const loadTasks = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const data = await fetchTasks();
+      setTasks(data);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
     }
-  }, [])
+  }
 
   useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks])
+    loadTasks();
+  }, [])
 
   const addTask = (title: string) => {
     const newTask: Task = {
@@ -44,11 +54,18 @@ const App = () => {
   return (
     <div style={{ padding: '20px' }}>
       <h1>Task Manager</h1>
+      <button onClick={loadTasks}>
+        Refresh
+      </button>
       <TaskForm onAddTask={addTask} />
+      {loading && (<p>Loading tasks...</p>)}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <button onClick={() => setShowCompleted(!showCompleted)}>
         {showCompleted ? 'Hide Completed' : 'Show Completed'}
       </button>
+      {!loading && !error && (
       <TaskList tasks={filteredTasks} onToggle={toggleTask} onDelete={deleteTask} />
+      )}
     </div>
   )
 }
