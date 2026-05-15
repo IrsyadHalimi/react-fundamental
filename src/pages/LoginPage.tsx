@@ -7,11 +7,23 @@ const LoginPage = () => {
   const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault()
-    login(email, password)
-    navigate("/")
+
+    try {
+      setLoading(true)
+      await login(email, password)
+
+      navigate("/")
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -31,7 +43,11 @@ const LoginPage = () => {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
-      <button type="submit">Login</button>
+      <button type="submit">
+        {loading
+          ? "Loading..."
+          : "Login"}
+      </button>
     </form>
   )
 }

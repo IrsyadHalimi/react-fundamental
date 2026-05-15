@@ -9,15 +9,16 @@ import MainLayout from "../components/layouts/MainLayout";
 import DashboardPage from "../pages/DashboardPage";
 import LoginPage from "../pages/LoginPage"; 
 import NotFoundPage from "../pages/NotFoundPage";
+import { useAuth } from "../contexts/AuthContext";
 
 type ProtectedProps = {
   children: React.ReactNode
 }
 
 const ProtectedRoute = ({ children }: ProtectedProps) => {
-  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true"
+  const { user } = useAuth()
 
-  if (!isLoggedIn) {
+  if (!user) {
     return <Navigate to="/login" />
   }
 

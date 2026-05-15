@@ -10,6 +10,8 @@ import {
   User
 } from "../types/auth"
 
+import { loginService } from "../services/authService"
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 type Props = {
@@ -22,15 +24,32 @@ export const AuthProvider = ({ children }: Props) => {
     return savedUser ? JSON.parse(savedUser) : null
   })
 
-  const login = (email: string, password: string) => {
+  const login = async (
+    email: string,
+    password: string
+  ) => {
+    const response =
+      await loginService({
+        email,
+        password
+      })
+
+    localStorage.setItem(
+      "token",
+      response.token
+    )
+
     const loggedInUser: User = {
-      name: "John Doe",
+      name: "Irsyad",
       email
     }
 
     setUser(loggedInUser)
 
-    localStorage.setItem("user", JSON.stringify(loggedInUser))
+    localStorage.setItem(
+      "user",
+      JSON.stringify(loggedInUser)
+    )
   }
 
   const logout = () => {
