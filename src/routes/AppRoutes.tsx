@@ -27,15 +27,17 @@ const ProtectedRoute = ({ children }: ProtectedProps) => {
 const AppRoutes = () => {
   return (
     <BrowserRouter>
-      <Route element={<MainLayout />}>
-        <Route path="/" element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
+      <Routes>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
   )
 }
