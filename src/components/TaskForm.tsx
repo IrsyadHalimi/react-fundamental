@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import Button from '../common/Button';
-import Input from '../common/Input';
-import { validateTask } from '../../utils/validation';
+import Button from './common/Button';
+import Input from './common/Input';
+import { validateTask } from './../utils/validation';
 
 type Props = {
   onAddTask: (title: string) => void;
