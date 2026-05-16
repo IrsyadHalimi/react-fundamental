@@ -9,3 +9,18 @@ export const fetchTasks = async (): Promise<Task[]> => {
 
   return response.data
 }
+
+export const createTask = 
+  async (
+    title: string
+  ): Promise<Task> => {
+    const response =
+      await api.post<Task>(
+        "/todos",
+        {
+          title,
+          completed: false
+        }
+      )
+      return response.data
+  }

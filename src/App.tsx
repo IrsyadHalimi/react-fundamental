@@ -1,55 +1,84 @@
-import { useEffect, useState } from "react"
 import TaskForm from "./components/TaskForm"
 import TaskList from "./components/TaskList"
-import { fetchTasks } from "./services/taskService"
+import {
+  useQuery,
+  useMutation,
+  useQueryClient
+} from "@tanstack/react-query"
+import {
+  fetchTasks,
+  createTask
+} from "./services/taskService"
 import { useTaskStore } from "./stores/taskStore"
+import { useEffect } from "react"
 
 const App = () => {
+  const queryClient = useQueryClient()
   const {
     tasks,
     setTasks,
-    addTask,
     toggleTask,
     deleteTask
   } = useTaskStore()
 
-  const [loading, setLoading] =
-    useState(false)
+  const {isLoading, error} =
+    useQuery({
+      queryKey: ["tasks"],
+      queryFn: fetchTasks
+    })
 
-  const [error, setError] =
-    useState("")
+  const createTaskMutation =
+    useMutation({
+      mutationFn: createTask,
+      onSuccess: (newTask) => {
+        setTasks([
+          newTask,
+          ...tasks
+        ])
+        queryClient.invalidateQueries({
+          queryKey: ["tasks"]
+        })
+      }
+    })
 
-  const loadTasks = async () => {
-    try {
-      setLoading(true)
-      setError("")
-      const data =
-        await fetchTasks()
-
-      setTasks(data)
-    } catch (error) {
-      setError(
-        "Gagal mengambil data"
-      )
-    } finally {
-      setLoading(false)
-    }
+  const handleAddTask = (
+    title: string
+  ) => {
+    createTaskMutation.mutate(
+      title
+    )
   }
 
+  if (isLoading) {
+    return <p>Loading...</p>
+  }
+
+  if (error) {
+    return (
+      <p>Terjadi error</p>
+    )
+  }
+
+  const { data } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: fetchTasks
+  })
+
   useEffect(() => {
-    loadTasks()
-  }, [])
+    if (data) {
+      setTasks(data)
+    }
+  }, [data, setTasks])
 
   return (
     <div style={{ padding: 20 }}>
       <h1>Task Manager</h1>
       <TaskForm
-        onAddTask={addTask}
+        onAddTask={handleAddTask}
       />
-      {loading && (
-        <p>Loading...</p>
+      {createTaskMutation.isPending && (
+        <p>Menyimpan...</p>
       )}
-      {error && <p>{error}</p>}
       <TaskList
         tasks={tasks}
         onToggle={toggleTask}
